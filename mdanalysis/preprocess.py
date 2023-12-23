@@ -23,7 +23,8 @@ def compute_ele(ts, index, cutoff):
 
 # delta_frame = 50
 backbone = True
-cut_off = 8
+# cut_off = 8
+cut_off = 10
 # train_valid_test_ratio = [0.6, 0.2, 0.2]
 is_save = True
 

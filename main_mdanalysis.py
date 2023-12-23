@@ -152,6 +152,9 @@ def main():
                      layer_decoder=args.decoder_layer)
     else:
         raise NotImplementedError('Unknown model:', args.model)
+    # print(model)
+    import pdb
+    pdb.set_trace()
 
     if master_worker:
         print(model)

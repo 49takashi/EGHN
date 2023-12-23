@@ -1,8 +1,14 @@
+import sys, os
+sys.path.append(os.path.join(os.path.dirname("__file__"), '..'))
+sys.path.append(os.path.join(os.path.dirname("__file__"), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname("__file__"), '..', '..', '..'))
+
+
 from torch import nn
 import torch
 import torch.nn.functional as F
 from torch_sparse import spmm
-from model.basic import EGNN, EquivariantScalarNet, BaseMLP, aggregate, EGMN
+from EGHN.model.basic import EGNN, EquivariantScalarNet, BaseMLP, aggregate, EGMN
 
 
 class EquivariantEdgeScalarNet(nn.Module):

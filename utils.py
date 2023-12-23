@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from torch import nn
-from motion.dataset import MotionDataset
+from EGHN.motion.dataset import MotionDataset
 
 
 def collector(batch):

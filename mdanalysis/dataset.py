@@ -3,13 +3,88 @@ import random
 import numpy as np
 from scipy.sparse import coo_matrix
 import torch
-from pytorch3d import transforms
+# from pytorch3d import transforms
 from torch.utils.data import Dataset
+from typing import Optional
 
 from MDAnalysisData import datasets
 import MDAnalysis as mda
 from MDAnalysis import transformations
 from MDAnalysis.analysis import distances
+
+def _copysign(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+    """
+    Return a tensor where each element has the absolute value taken from the,
+    corresponding element of a, with sign taken from the corresponding
+    element of b. This is like the standard copysign floating-point operation,
+    but is not careful about negative 0 and NaN.
+
+    Args:
+        a: source tensor.
+        b: tensor whose signs will be used, of the same shape as a.
+
+    Returns:
+        Tensor of the same shape as a with the signs of b.
+    """
+    signs_differ = (a < 0) != (b < 0)
+    return torch.where(signs_differ, -a, a)
+
+def random_quaternions(
+    n: int, dtype: Optional[torch.dtype] = None, device = None
+) -> torch.Tensor:
+    """
+    Generate random quaternions representing rotations,
+    i.e. versors with nonnegative real part.
+
+    Args:
+        n: Number of quaternions in a batch to return.
+        dtype: Type to return.
+        device: Desired device of returned tensor. Default:
+            uses the current device for the default tensor type.
+
+    Returns:
+        Quaternions as tensor of shape (N, 4).
+    """
+    if isinstance(device, str):
+        device = torch.device(device)
+    o = torch.randn((n, 4), dtype=dtype, device=device)
+    s = (o * o).sum(1)
+    o = o / _copysign(torch.sqrt(s), o[:, 0])[:, None]
+    return o
+
+def random_rotations(
+    n: int, dtype: Optional[torch.dtype] = None, device = None
+) -> torch.Tensor:
+    """
+    Generate random rotations as 3x3 rotation matrices.
+
+    Args:
+        n: Number of rotation matrices in a batch to return.
+        dtype: Type to return.
+        device: Device of returned tensor. Default: if None,
+            uses the current device for the default tensor type.
+
+    Returns:
+        Rotation matrices as tensor of shape (n, 3, 3).
+    """
+    quaternions = random_quaternions(n, dtype=dtype, device=device)
+    return quaternion_to_matrix(quaternions)
+
+def random_rotation(
+    dtype: Optional[torch.dtype] = None, device = None
+) -> torch.Tensor:
+    """
+    Generate a single random 3x3 rotation matrix.
+
+    Args:
+        dtype: Type to return
+        device: Device of returned tensor. Default: if None,
+            uses the current device for the default tensor type
+
+    Returns:
+        Rotation matrix as tensor of shape (3, 3).
+    """
+    return random_rotations(1, dtype, device)[0]
 
 
 class MDAnalysisDataset(Dataset):
@@ -99,7 +174,8 @@ class MDAnalysisDataset(Dataset):
             loc_t, vel_t, _, _ = torch.load(os.path.join(self.tmp_dir,
                                                          f'{self.dataset}_{frame_t}.pkl'))
             if self.test_rot and self.partition == 'test':
-                rot = transforms.random_rotation()
+                # rot = transforms.random_rotation()
+                rot = random_rotation()
                 loc_0 = torch.tensor(np.matmul(loc_0.detach().numpy(), rot.detach().numpy()))
                 vel_0 = torch.tensor(np.matmul(vel_0.detach().numpy(), rot.detach().numpy()))
                 loc_t = torch.tensor(np.matmul(loc_t.detach().numpy(), rot.detach().numpy()))

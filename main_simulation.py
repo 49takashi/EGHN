@@ -128,23 +128,23 @@ def main():
 
     n_complex, average_complex_size, system_types = args.n_complex, args.average_complex_size, args.system_types
 
-    dataset_train = SimulationDataset(partition='train', max_samples=args.max_training_samples, n_complex=n_complex,
-                                      average_complex_size=average_complex_size, system_types=system_types,
-                                      data_dir=args.data_dir)
-    loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
-                                               num_workers=8, collate_fn=collector)
+    # dataset_train = SimulationDataset(partition='train', max_samples=args.max_training_samples, n_complex=n_complex,
+    #                                   average_complex_size=average_complex_size, system_types=system_types,
+    #                                   data_dir=args.data_dir)
+    # loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
+    #                                            num_workers=8, collate_fn=collector)
 
-    dataset_val = SimulationDataset(partition='val', n_complex=n_complex,
-                                    average_complex_size=average_complex_size, system_types=system_types,
-                                    data_dir=args.data_dir)
-    loader_val = torch.utils.data.DataLoader(dataset_val, batch_size=args.batch_size, shuffle=True, drop_last=False,
-                                             num_workers=8, collate_fn=collector)
+    # dataset_val = SimulationDataset(partition='val', n_complex=n_complex,
+    #                                 average_complex_size=average_complex_size, system_types=system_types,
+    #                                 data_dir=args.data_dir)
+    # loader_val = torch.utils.data.DataLoader(dataset_val, batch_size=args.batch_size, shuffle=True, drop_last=False,
+    #                                          num_workers=8, collate_fn=collector)
 
-    dataset_test = SimulationDataset(partition='test', n_complex=n_complex,
-                                     average_complex_size=average_complex_size, system_types=system_types,
-                                     data_dir=args.data_dir)
-    loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=True, drop_last=False,
-                                              num_workers=8, collate_fn=collector)
+    # dataset_test = SimulationDataset(partition='test', n_complex=n_complex,
+    #                                  average_complex_size=average_complex_size, system_types=system_types,
+    #                                  data_dir=args.data_dir)
+    # loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=True, drop_last=False,
+    #                                           num_workers=8, collate_fn=collector)
 
     if args.model == 'hier':
         model = EGHN(in_node_nf=1, in_edge_nf=2 + 1, hidden_nf=args.nf, device=device,
@@ -155,6 +155,8 @@ def main():
         raise NotImplementedError('Unknown model:', args.model)
 
     print(model)
+    import pdb
+    pdb.set_trace()
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     # 250 epoch no improvement. We will stop.
     model_save_path = args.outf + '/' + args.exp_name + '/' + 'saved_model.pth'
