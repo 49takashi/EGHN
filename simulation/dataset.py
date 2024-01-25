@@ -11,12 +11,13 @@ class SimulationDataset():
 
     """
     def __init__(self, partition='train', max_samples=1e8,
-                 data_dir='', n_complex=5, average_complex_size=3, system_types=5):
+                 data_dir='', n_complex=5, average_complex_size=3, system_types=5, device="cuda:0"):
         self.partition = partition
         self.data_dir = data_dir
         self.n_complex = n_complex
         self.average_complex_size = average_complex_size
         self.system_types = system_types
+        self.device = device
 
         if self.partition == 'val':
             self.suffix = 'valid'
