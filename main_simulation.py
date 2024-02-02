@@ -12,8 +12,8 @@ import random
 import numpy as np
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
-parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
-parser.add_argument('--batch_size', type=int, default=100, metavar='N',
+parser.add_argument('--exp_name', type=str, default='exp_10_unit32_pooling1', metavar='N', help='experiment_name')
+parser.add_argument('--batch_size', type=int, default=50, metavar='N',
                     help='input batch size for training (default: 128)')
 parser.add_argument('--epochs', type=int, default=10000, metavar='N',
                     help='number of epochs to train (default: 10)')
@@ -29,29 +29,29 @@ parser.add_argument('--outf', type=str, default='exp_results', metavar='N',
                     help='folder to output the json log file')
 parser.add_argument('--lr', type=float, default=5e-4, metavar='N',
                     help='learning rate')
-parser.add_argument('--nf', type=int, default=64, metavar='N',
+parser.add_argument('--nf', type=int, default=32, metavar='N',
                     help='hidden dim')
 parser.add_argument('--model', type=str, default='hier', metavar='N')
 parser.add_argument('--n_layers', type=int, default=4, metavar='N',
                     help='number of layers for the autoencoder')
 parser.add_argument('--max_training_samples', type=int, default=1000, metavar='N',
                     help='maximum amount of training samples')
-parser.add_argument('--weight_decay', type=float, default=1e-12, metavar='N',
+parser.add_argument('--weight_decay', type=float, default=1e-4, metavar='N',
                     help='timing experiment')
-parser.add_argument('--data_dir', type=str, default='spatial_graph/md17',
+parser.add_argument('--data_dir', type=str, default='simulation/datagen/data',
                     help='Data directory.')
 parser.add_argument('--dropout', type=float, default=0.5,
                     help='Dropout rate (1 - keep probability).')
 parser.add_argument("--config_by_file", default=False, action="store_true", )
 
-parser.add_argument('--n_complex', type=int, default=5,
+parser.add_argument('--n_complex', type=int, default=3,
                     help='Number of complex bodies.')
 parser.add_argument('--average_complex_size', type=int, default=3,
                     help='Average size of complex bodies.')
-parser.add_argument('--system_types', type=int, default=5,
+parser.add_argument('--system_types', type=int, default=1,
                     help="The total number of system types.")
 
-parser.add_argument('--lambda_link', type=float, default=1,
+parser.add_argument('--lambda_link', type=float, default=4,
                     help='The weight of the linkage loss.')
 parser.add_argument('--n_cluster', type=int, default=3,
                     help='The number of clusters.')
@@ -59,9 +59,9 @@ parser.add_argument('--flat', action='store_true', default=False,
                     help='flat MLP')
 parser.add_argument('--interaction_layer', type=int, default=3,
                     help='The number of interaction layers per block.')
-parser.add_argument('--pooling_layer', type=int, default=3,
+parser.add_argument('--pooling_layer', type=int, default=1,
                     help='The number of pooling layers in EGPN.')
-parser.add_argument('--decoder_layer', type=int, default=1,
+parser.add_argument('--decoder_layer', type=int, default=2,
                     help='The number of decoder layers.')
 parser.add_argument('--norm', action='store_true', default=False,
                     help='Use norm in EGNN')
@@ -128,23 +128,23 @@ def main():
 
     n_complex, average_complex_size, system_types = args.n_complex, args.average_complex_size, args.system_types
 
-    # dataset_train = SimulationDataset(partition='train', max_samples=args.max_training_samples, n_complex=n_complex,
-    #                                   average_complex_size=average_complex_size, system_types=system_types,
-    #                                   data_dir=args.data_dir)
-    # loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
-    #                                            num_workers=8, collate_fn=collector)
+    dataset_train = SimulationDataset(partition='train', max_samples=args.max_training_samples, n_complex=n_complex,
+                                      average_complex_size=average_complex_size, system_types=system_types,
+                                      data_dir=args.data_dir)
+    loader_train = torch.utils.data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, drop_last=True,
+                                               num_workers=8, collate_fn=collector)
 
-    # dataset_val = SimulationDataset(partition='val', n_complex=n_complex,
-    #                                 average_complex_size=average_complex_size, system_types=system_types,
-    #                                 data_dir=args.data_dir)
-    # loader_val = torch.utils.data.DataLoader(dataset_val, batch_size=args.batch_size, shuffle=True, drop_last=False,
-    #                                          num_workers=8, collate_fn=collector)
+    dataset_val = SimulationDataset(partition='val', n_complex=n_complex,
+                                    average_complex_size=average_complex_size, system_types=system_types,
+                                    data_dir=args.data_dir)
+    loader_val = torch.utils.data.DataLoader(dataset_val, batch_size=args.batch_size, shuffle=True, drop_last=False,
+                                             num_workers=8, collate_fn=collector)
 
-    # dataset_test = SimulationDataset(partition='test', n_complex=n_complex,
-    #                                  average_complex_size=average_complex_size, system_types=system_types,
-    #                                  data_dir=args.data_dir)
-    # loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=True, drop_last=False,
-    #                                           num_workers=8, collate_fn=collector)
+    dataset_test = SimulationDataset(partition='test', n_complex=n_complex,
+                                     average_complex_size=average_complex_size, system_types=system_types,
+                                     data_dir=args.data_dir)
+    loader_test = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, shuffle=True, drop_last=False,
+                                              num_workers=8, collate_fn=collector)
 
     if args.model == 'hier':
         model = EGHN(in_node_nf=1, in_edge_nf=2 + 1, hidden_nf=args.nf, device=device,
@@ -155,8 +155,8 @@ def main():
         raise NotImplementedError('Unknown model:', args.model)
 
     print(model)
-    import pdb
-    pdb.set_trace()
+    # import pdb
+    # pdb.set_trace()
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     # 250 epoch no improvement. We will stop.
     model_save_path = args.outf + '/' + args.exp_name + '/' + 'saved_model.pth'

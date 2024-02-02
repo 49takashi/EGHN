@@ -1,7 +1,7 @@
 import argparse
 import torch
 import torch.utils.data
-from motion.dataset import MotionDataset
+from motion.motion_dataset import MotionDataset
 from model.eghn import EGHN
 import os
 from torch import nn, optim
@@ -28,7 +28,7 @@ parser.add_argument('--test_interval', type=int, default=5, metavar='N',
                     help='how many epochs to wait before logging test')
 parser.add_argument('--outf', type=str, default='exp_results', metavar='N',
                     help='folder to output the json log file')
-parser.add_argument('--lr', type=float, default=5e-4, metavar='N',
+parser.add_argument('--lr', type=float, default=4e-4, metavar='N',
                     help='learning rate')
 parser.add_argument('--nf', type=int, default=64, metavar='N',
                     help='hidden dim')
@@ -37,11 +37,11 @@ parser.add_argument('--n_layers', type=int, default=4, metavar='N',
                     help='number of layers for the autoencoder')
 parser.add_argument('--max_training_samples', type=int, default=3000, metavar='N',
                     help='maximum amount of training samples')
-parser.add_argument('--weight_decay', type=float, default=1e-12, metavar='N',
+parser.add_argument('--weight_decay', type=float, default=1e-6, metavar='N',
                     help='timing experiment')
 parser.add_argument('--delta_frame', type=int, default=30,
                     help='Number of frames delta.')
-parser.add_argument('--data_dir', type=str, default='spatial_graph/md17',
+parser.add_argument('--data_dir', type=str, default='motion/dataset',
                     help='Data directory.')
 parser.add_argument('--dropout', type=float, default=0.5,
                     help='Dropout rate (1 - keep probability).')
@@ -53,11 +53,11 @@ parser.add_argument('--n_cluster', type=int, default=3,
                     help='The number of clusters.')
 parser.add_argument('--flat', action='store_true', default=False,
                     help='flat MLP')
-parser.add_argument('--interaction_layer', type=int, default=3,
+parser.add_argument('--interaction_layer', type=int, default=5,
                     help='The number of interaction layers per block.')
 parser.add_argument('--pooling_layer', type=int, default=3,
                     help='The number of pooling layers in EGPN.')
-parser.add_argument('--decoder_layer', type=int, default=1,
+parser.add_argument('--decoder_layer', type=int, default=2,
                     help='The number of decoder layers.')
 
 parser.add_argument('--case', type=str, default='walk',
@@ -99,8 +99,9 @@ if args.config_by_file is not None:
         args.case = hyper_params["case"]
 
 args.cuda = not args.no_cuda and torch.cuda.is_available()
+args.max_training_samples = 3000
 
-device = torch.device("cuda" if args.cuda else "cpu")
+device = torch.device("cuda:1" if args.cuda else "cpu")
 loss_mse = nn.MSELoss()
 
 print(args)
