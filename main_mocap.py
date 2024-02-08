@@ -14,7 +14,7 @@ from utils import EarlyStopping
 
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--exp_name', type=str, default='exp_1', metavar='N', help='experiment_name')
-parser.add_argument('--batch_size', type=int, default=100, metavar='N',
+parser.add_argument('--batch_size', type=int, default=12, metavar='N',
                     help='input batch size for training (default: 128)')
 parser.add_argument('--epochs', type=int, default=10000, metavar='N',
                     help='number of epochs to train (default: 10)')
@@ -49,13 +49,13 @@ parser.add_argument("--config_by_file", default=None, nargs="?", const='', type=
 
 parser.add_argument('--lambda_link', type=float, default=1,
                     help='The weight of the linkage loss.')
-parser.add_argument('--n_cluster', type=int, default=3,
+parser.add_argument('--n_cluster', type=int, default=4,
                     help='The number of clusters.')
 parser.add_argument('--flat', action='store_true', default=False,
                     help='flat MLP')
 parser.add_argument('--interaction_layer', type=int, default=5,
                     help='The number of interaction layers per block.')
-parser.add_argument('--pooling_layer', type=int, default=3,
+parser.add_argument('--pooling_layer', type=int, default=2,
                     help='The number of pooling layers in EGPN.')
 parser.add_argument('--decoder_layer', type=int, default=2,
                     help='The number of decoder layers.')
